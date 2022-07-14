@@ -37,7 +37,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class MainActivity extends AppCompatActivity implements FileListViewAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity
+{
 
    private AppBarConfiguration appBarConfiguration;
    private ActivityMainBinding binding;
@@ -55,108 +56,61 @@ public class MainActivity extends AppCompatActivity implements FileListViewAdapt
    ArrayList <String> aList;
    ArrayAdapter <String> adapter;
 
-   RecyclerView rvFiles;
 
    EditText edText;
    Button button;
    ListView listView;
-   RecyclerView filesView;
+
    private static final String TAG = "CHOOH";
 
 
    void fill_list_with_filenames (String path)
    {
+      Log.i(TAG, "fill_list_with_filenames : " + path);
+
       File dir = new File (path);
-    //  File[] file_list = directory.listFiles();
-      File[] files = directory.listFiles();
+      files = directory.listFiles();
 
       adapter.clear();
       adapter.add("..");
 
       if (files != null)
-        {
-         //  Log.i("Files", "Size: " + files.length);
-         for (int i = 0; i < files.length; i++)
          {
-            adapter.add(files[i].getName());
+          //  Log.i("Files", "Size: " + files.length);
+          for (int i = 0; i < files.length; i++)
+             {
+              adapter.add(files[i].getName());
+             }
+
          }
 
-        }
-
-
-
-
+     
    }
 
-
-   void fill_list_with_filenames2 (String path)
-   {
-
-      File dir = new File (path);
-      file_list = directory.listFiles();
-      //ArrayList<String> fnames = new ArrayList<>();
-
-
-      fileNames.clear();
-      fileNames.add("..");
-
-      if (file_list != null)
-         {
-           Log.i("Files", "Size: " + files.length);
-          for (int i = 0; i < file_list.length; i++)
-              {
-                 fileNames.add(file_list[i].getName());
-              }
-
-        }
-
-
-      //files_adapter = new FileListViewAdapter(this, fnames);
-      //files_adapter.setClickListener(this);
-      //rvFiles.setAdapter(files_adapter);
-   }
 
    @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+   protected void onCreate (Bundle savedInstanceState)
+   {
+    super.onCreate(savedInstanceState);
 
-      binding = ActivityMainBinding.inflate(getLayoutInflater());
-      setContentView(binding.getRoot());
+    binding = ActivityMainBinding.inflate(getLayoutInflater());
+    setContentView(binding.getRoot());
 
-      edText = findViewById (R.id.editTest);
-      button = findViewById (R.id.btTest);
-      listView = findViewById (R.id.lvFiles);
-      //filesView = findViewById (R.id.rvFiles);
+    edText = findViewById (R.id.editTest);
+    button = findViewById (R.id.btTest);
+    listView = findViewById (R.id.lvFiles);
 
-      aList = new ArrayList<>();
+    aList = new ArrayList<>();
+    directory = Environment.getExternalStorageDirectory();
 
-      String[] planets = new String[] { "Mercury", "Venus", "Earth", "Mars",
-              "Jupiter", "Saturn", "Uranus", "Neptune"};
-      ArrayList<String> planetList = new ArrayList<String>();
-      planetList.addAll( Arrays.asList(planets) );
+    adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
 
-//      adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
-
-      directory = Environment.getExternalStorageDirectory();
-//      File[] files = directory.listFiles();
-      files = directory.listFiles();
+    fill_list_with_filenames (directory.getAbsolutePath());
 
 
-      adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
-//      adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.filelist_row, aList);
-
-      fill_list_with_filenames (directory.getAbsolutePath());
+    listView.setAdapter(adapter);
 
 
-
-
-      /*
-      adapter.add( "Ceres" );
-      adapter.add( "Pluto" );
-      adapter.add( "Haumea" );
-      adapter.add( "Makemake" );
-      adapter.add( "Eris" );
-*/
       /*
 
       File[] externalStorageVolumes =
@@ -165,44 +119,46 @@ File primaryExternalStorage = externalStorageVolumes[0];
 
        */
 
-//      adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.simple_list_item_1, aList);
-
-
-      listView.setAdapter(adapter);
-      //filesView.setAdapter(adapter);
-
       Log.i(TAG, "--------------------------");
-/*
-      button.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
 
-            String s = edText.getText().toString();
-            aList.add(s);
-            adapter.notifyDataSetChanged();
+      listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+      {
+         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Log.i(TAG, "itemClick: position = " + position + ", id = " + id);
 
-            Log.i(TAG, "BUTTON CLICK " + s);
+            if (position == 0)
+             {
+              //up dir
 
-         }
+            } else {
+                    File f = files[position - 1];
+                    if (f.isDirectory())
+                       {
+                        //goto dir
+                          Log.i(TAG, "GOTO DIR");
 
-         }
-      );
-*/
-/*
-      listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-         public void onItemClick(AdapterView<?> parent, View view,
-                                 int position, long id) {
-            Log.i(TAG, "itemClick: position = " + position + ", id = "+ id);
-            Log.i(TAG, files[position - 1].getAbsolutePath());
+                          Log.i(TAG, f.getAbsolutePath());
+
+                          fill_list_with_filenames (f.getAbsolutePath());
+
+                       }
+                    else
+                       {
+                        //play file
+                      }
+
+               //Log.i(TAG, files[position - 1].getAbsolutePath());
+            }
          }
       });
-*/
+
 
       setSupportActionBar(binding.toolbar);
 
       NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
       appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
       NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
 
       binding.fab.setOnClickListener(new View.OnClickListener() {
          @Override
@@ -214,14 +170,13 @@ File primaryExternalStorage = externalStorageVolumes[0];
 
 
 
-      //ArrayList<String> fileNames = new ArrayList<>();
-
+      /*
       fileNames = new ArrayList<>();
 
       directory = Environment.getExternalStorageDirectory();
 
       files = directory.listFiles();
-
+*/
 
 /*
       if (files != null) {
@@ -238,55 +193,8 @@ File primaryExternalStorage = externalStorageVolumes[0];
       }
 */
 
-      fill_list_with_filenames2(directory.getAbsolutePath());
-
-      // set up the RecyclerView
-      RecyclerView recyclerView = findViewById(R.id.rvFiles);
-
-      LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-
-      recyclerView.setLayoutManager(linearLayoutManager);
-      files_adapter = new FileListViewAdapter(this, fileNames);
-    //  files_adapter = new FileListViewAdapter(this, fnames);
-
-      files_adapter.setClickListener(this);
-      recyclerView.setAdapter(files_adapter);
 
 
-      RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-      DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-              linearLayoutManager.getOrientation());
-      recyclerView.addItemDecoration(dividerItemDecoration);
-
-   }
-
-   @Override
-   public void onItemClick(View view, int position) {
-      //  Toast.makeText(this, "You clicked " + adapter.getItem(position) + " on row number " + position, Toast.LENGTH_SHORT).show();
-      //Log.i(TAG, "You clicked " + files_adapter.getItem(position) + " on row number " + position);
-      if (files_adapter.getItem(position) == "..")
-      {
-         Log.i(TAG, "You clicked UP DIR");
-      }
-      else {
-         Log.i(TAG, "You clicked " + files[position - 1]);
-         //check if dir
-         String fname = files[position - 1].getAbsolutePath();
-         File f = new File(fname);
-         Log.i(TAG, fname);
-         if (f.isDirectory())
-         {
-            Log.i(TAG, "DIRRRRRRRRRRRRRRRRRRR");
-
-            fill_list_with_filenames2(f.getAbsolutePath());
-
-         }
-         else
-         {
-            //if not, play file
-
-         }
-      }
    }
 
 
