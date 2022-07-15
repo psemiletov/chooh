@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity
       Log.i(TAG, "fill_list_with_filenames : " + path);
 
       File dir = new File (path);
-      files = directory.listFiles();
+      files = dir.listFiles();
 
       adapter.clear();
       adapter.add("..");
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
          }
 
-     
+
    }
 
 
@@ -140,6 +140,8 @@ File primaryExternalStorage = externalStorageVolumes[0];
                           Log.i(TAG, f.getAbsolutePath());
 
                           fill_list_with_filenames (f.getAbsolutePath());
+                         // adapter.clear();
+                        //  adapter.add("HOLA");
 
                        }
                     else
