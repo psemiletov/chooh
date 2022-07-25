@@ -83,8 +83,16 @@ public class MainActivity extends AppCompatActivity
 
    private static final String TAG = "CHOOH";
 
-   public void track_play (String fname)
 
+   /** Called when the user touches the button */
+
+   public void onbtPlayPauseClick(View view) {
+      // Do something in response to button click
+      Log.d(TAG, "onbtPlayPauseClick: ");
+   }
+
+
+   public void track_play (String fname)
    {
       current_file = fname;
       try {
@@ -108,7 +116,10 @@ public class MainActivity extends AppCompatActivity
 
   public void track_play_pause ()
   {
-     player.pause();
+     if (player.isPlaying())
+         player.pause();
+     else
+         player.start();
 
   }
 
@@ -307,7 +318,7 @@ public class MainActivity extends AppCompatActivity
     player = new MediaPlayer();
 
 
-      button = findViewById (R.id.btTest);
+      //button = findViewById (R.id.btTest);
     listView = findViewById (R.id.lvFiles);
 
     aList = new ArrayList<>();
@@ -406,11 +417,19 @@ File primaryExternalStorage = externalStorageVolumes[0];
 
       //getAllAudioFromDevice(this);
 
+
+      Button button = (Button) findViewById(R.id.btPlayPause);
+      button.setOnClickListener(new View.OnClickListener() {
+         public void onClick(View v) {
+            track_play_pause();
+         }
+      });
+
+
+
       binding.fab.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-              //      .setAction("Action", null).show();
 
             Log.i(TAG, "OOOOOOOOOOOOOOOOOOOOOOOOOOOO");
 
