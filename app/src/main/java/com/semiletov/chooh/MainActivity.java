@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,8 +58,6 @@ public class MainActivity extends AppCompatActivity
    private AppBarConfiguration appBarConfiguration;
    private ActivityMainBinding binding;
 
-   //File directory;
-
    File current_dir;
 
 
@@ -74,6 +73,9 @@ public class MainActivity extends AppCompatActivity
    ArrayList <String> aList;
    ArrayAdapter <String> adapter;
 
+   String current_file;
+
+   MediaPlayer player;
 
    EditText edText;
    Button button;
@@ -81,6 +83,34 @@ public class MainActivity extends AppCompatActivity
 
    private static final String TAG = "CHOOH";
 
+   public void track_play (String fname)
+
+   {
+      current_file = fname;
+      try {
+         player.setDataSource(fname);
+         player.prepare();
+         player.start();
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+   public void track_prev()
+   {
+
+   }
+
+   public void track_next()
+   {
+
+   }
+
+  public void track_play_pause ()
+  {
+     player.pause();
+
+  }
 
    private void parseAllAudio() {
       try {
@@ -274,9 +304,10 @@ public class MainActivity extends AppCompatActivity
          // do your stuff..
       }
 
+    player = new MediaPlayer();
 
-    edText = findViewById (R.id.editTest);
-    button = findViewById (R.id.btTest);
+
+      button = findViewById (R.id.btTest);
     listView = findViewById (R.id.lvFiles);
 
     aList = new ArrayList<>();
@@ -357,6 +388,7 @@ File primaryExternalStorage = externalStorageVolumes[0];
                     else
                        {
                         //play file
+                         track_play(f.getAbsolutePath());
                       }
 
                //Log.i(TAG, files[position - 1].getAbsolutePath());
