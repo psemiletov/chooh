@@ -42,6 +42,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity
 
    File current_dir;
 
-
    File[] files;
    File[] file_list;
 
@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity
    ArrayAdapter <String> adapter;
 
    String current_file;
+   int current_list_position;
 
    MediaPlayer player;
 
@@ -84,17 +85,29 @@ public class MainActivity extends AppCompatActivity
    private static final String TAG = "CHOOH";
 
 
-   /** Called when the user touches the button */
 
-   public void onbtPlayPauseClick(View view) {
-      // Do something in response to button click
-      Log.d(TAG, "onbtPlayPauseClick: ");
+   public void directory_up()
+   {
+      if (current_dir.getParent() == null)
+         return;
+      current_dir = new File (current_dir.getParent());
+      fill_list_with_filenames (current_dir.getAbsolutePath());
+
+      //set selected item
    }
 
 
    public void track_play (String fname)
    {
+      Log.d(TAG, "track_play: " + fname);
+
       current_file = fname;
+
+      if (player.isPlaying())
+          player.stop();
+
+      player.reset();
+
       try {
          player.setDataSource(fname);
          player.prepare();
@@ -106,12 +119,29 @@ public class MainActivity extends AppCompatActivity
 
    public void track_prev()
    {
+      if (current_list_position == 0)
+         return;
 
+      current_list_position--;
+
+      File f = files[current_list_position];
+      track_play (f.getAbsolutePath());
    }
 
    public void track_next()
    {
+      Log.d(TAG, "track_next: 1");
 
+      if (current_list_position == files.length)
+         return;
+
+
+      Log.d(TAG, "track_next: 2");
+
+      current_list_position++;
+
+      File f = files[current_list_position];
+      track_play (f.getAbsolutePath());
    }
 
   public void track_play_pause ()
@@ -123,90 +153,9 @@ public class MainActivity extends AppCompatActivity
 
   }
 
-   private void parseAllAudio() {
-      try {
-         String TAG = "Audio";
-         Cursor cur = getContentResolver().query(
-                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
-                 null);
-
-         if (cur == null) {
-            // Query failed...
-            Log.e(TAG, "Failed to retrieve music: cursor is null :-(");
-
-         }
-         else if (!cur.moveToFirst()) {
-            // Nothing to query. There is no music on the device. How boring.
-            Log.e(TAG, "Failed to move cursor to first row (no query results).");
-
-         }else {
-            Log.i(TAG, "Listing...");
-            // retrieve the indices of the columns where the ID, title, etc. of the song are
-
-            // add each song to mItems
-            do {
-               int artistColumn = cur.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-               int titleColumn = cur.getColumnIndex(MediaStore.Audio.Media.TITLE);
-               int albumColumn = cur.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-               int durationColumn = cur.getColumnIndex(MediaStore.Audio.Media.DURATION);
-               int idColumn = cur.getColumnIndex(MediaStore.Audio.Media._ID);
-               int filePathIndex = cur.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-               Log.i(TAG, "Title column index: " + String.valueOf(titleColumn));
-               Log.i(TAG, "ID column index: " + String.valueOf(titleColumn));
-
-               Log.i("Final ", "ID: " + cur.getString(idColumn) + " Title: " + cur.getString(titleColumn) + "Path: " + cur.getString(filePathIndex));
-              /* MediaFileInfo audio = new MediaFileInfo();
-               audio.setFileName(cur.getString(titleColumn));
-               audio.setFilePath(cur.getString(filePathIndex));
-               audio.setFileType(type);
-               mediaList.add(audio);*/
-
-            } while (cur.moveToNext());
-         }
-
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
-   }
 
 
-
-
-
-
-   public List<AudioModel> getAllAudioFromDevice(final Context context) {
-      final List<AudioModel> tempAudioList = new ArrayList<>();
-
-      Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-      String[] projection = {MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.ArtistColumns.ARTIST,};
-      Cursor c = context.getContentResolver().query(uri, projection, MediaStore.Audio.Media.DATA + " like ? ", new String[]{"%utm%"}, null);
-
-      if (c != null) {
-         while (c.moveToNext()) {
-            AudioModel audioModel = new AudioModel();
-            String path = c.getString(0);
-            String name = c.getString(1);
-            String album = c.getString(2);
-            String artist = c.getString(3);
-
-            audioModel.setaName(name);
-            audioModel.setaAlbum(album);
-            audioModel.setaArtist(artist);
-            audioModel.setaPath(path);
-
-            Log.e("Name :" + name, " Album :" + album);
-            Log.e("Path :" + path, " Artist :" + artist);
-
-            tempAudioList.add(audioModel);
-         }
-         c.close();
-      }
-
-      return tempAudioList;
-   }
-
-
-   void fill_list_with_filenames (String path)
+   public void fill_list_with_filenames (String path)
    {
       Log.i(TAG, "fill_list_with_filenames : " + path);
 
@@ -329,12 +278,6 @@ public class MainActivity extends AppCompatActivity
       File primaryExternalStorage = externalStorageVolumes[0];
 */
     current_dir = Environment.getExternalStorageDirectory();
-    //  current_dir = new File (Environment.getExternalStorageDirectory().toString()+"/Music");
-
-    //  current_dir = new File (Environment.DIRECTORY_MUSIC);
-
-    //  current_dir = Environment.getStorageDirectory();
-
     adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
     fill_list_with_filenames (current_dir.getAbsolutePath());
     listView.setAdapter(adapter);
@@ -370,7 +313,6 @@ File primaryExternalStorage = externalStorageVolumes[0];
 
        */
 
-      Log.i(TAG, "--------------------------");
 
       listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
       {
@@ -380,27 +322,24 @@ File primaryExternalStorage = externalStorageVolumes[0];
             if (position == 0)
                {
                 //up dir
-                if (current_dir.getParent() == null)
-                   return;
-
-                current_dir = new File(current_dir.getParent());
-                fill_list_with_filenames (current_dir.getAbsolutePath());
-
+                  directory_up();
                }
-            else {
-                    File f = files[position - 1];
-                    if (f.isDirectory())
-                       {
-                        //goto dir
-                          Log.i(TAG, "GOTO DIR");
-                          Log.i(TAG, f.getAbsolutePath());
-                          fill_list_with_filenames (f.getAbsolutePath());
-                       }
-                    else
-                       {
-                        //play file
-                         track_play(f.getAbsolutePath());
-                      }
+            else
+                {
+                 File f = files[position - 1];
+                 if (f.isDirectory())
+                    {
+                     //goto dir
+                     Log.i(TAG, "GOTO DIR");
+                     Log.i(TAG, f.getAbsolutePath());
+                     fill_list_with_filenames (f.getAbsolutePath());
+                    }
+                 else
+                     {
+                      //play file
+                      track_play (f.getAbsolutePath());
+                      current_list_position = position - 1;
+                     }
 
                //Log.i(TAG, files[position - 1].getAbsolutePath());
             }
@@ -418,15 +357,23 @@ File primaryExternalStorage = externalStorageVolumes[0];
       //getAllAudioFromDevice(this);
 
 
-      Button button = (Button) findViewById(R.id.btPlayPause);
-      button.setOnClickListener(new View.OnClickListener() {
+      Button btPlayPause = (Button) findViewById(R.id.btPlayPause);
+      btPlayPause.setOnClickListener(new View.OnClickListener() {
          public void onClick(View v) {
             track_play_pause();
          }
       });
 
 
+      ImageButton btPlayNext = (ImageButton) findViewById(R.id.btPlayNext);
+      btPlayNext.setOnClickListener(new View.OnClickListener() {
+         public void onClick(View v) {
+            track_next();
+         }
+      });
 
+
+/*
       binding.fab.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
@@ -452,10 +399,6 @@ File primaryExternalStorage = externalStorageVolumes[0];
             Log.i(TAG, "cursor.getCount(): " + cursor.getCount());
 
             String[] result = new String[cursor.getCount()];
-            /*
-             * Iterate over the Cursor, extracting each album name and song
-             * title.
-             */
             while (cursor.moveToNext()) {
                // Extract the song title.
                String title = cursor.getString(titleIdx);
@@ -474,13 +417,9 @@ File primaryExternalStorage = externalStorageVolumes[0];
 
 
       });
-
-
-
-
    }
-
-
+*/
+}
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
