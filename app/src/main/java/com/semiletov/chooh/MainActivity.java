@@ -47,6 +47,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.security.acl.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,7 +164,26 @@ public class MainActivity extends AppCompatActivity
       current_dir = new File(path);
 
       File dir = new File (path);
-      files = dir.listFiles();
+     // files = dir.listFiles();
+
+      files = dir.listFiles(new FileFilter() {
+                               @Override
+                               public boolean accept(File file)
+                               {
+
+                                  if (file.isDirectory())
+                                     return true;
+
+                                  if (file.getPath().endsWith(".mp3") ||
+                                     file.getPath().endsWith(".flac") ||
+                                     file.getPath().endsWith(".ogg") ||
+                                     file.getPath().endsWith(".wav"))
+                                     return true;
+
+                                  return false;
+                               }
+                            }
+      );
 
       adapter.clear();
       adapter.add("..");
