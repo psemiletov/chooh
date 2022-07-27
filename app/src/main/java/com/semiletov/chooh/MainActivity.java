@@ -52,7 +52,9 @@ import java.io.FilenameFilter;
 import java.security.acl.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity
@@ -105,6 +107,9 @@ public class MainActivity extends AppCompatActivity
 
       current_file = fname;
 
+      listView.setSelection (current_list_position);
+     // listView.setItemChecked(current_list_position, true);
+
       if (player.isPlaying())
           player.stop();
 
@@ -132,13 +137,9 @@ public class MainActivity extends AppCompatActivity
 
    public void track_next()
    {
-      Log.d(TAG, "track_next: 1");
 
       if (current_list_position == files.length)
          return;
-
-
-      Log.d(TAG, "track_next: 2");
 
       current_list_position++;
 
@@ -184,6 +185,15 @@ public class MainActivity extends AppCompatActivity
                                }
                             }
       );
+
+      if (files != null && files.length > 1) {
+         Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File object1, File object2) {
+               return object1.getName().toLowerCase(Locale.getDefault()).compareTo(object2.getName().toLowerCase(Locale.getDefault()));
+            }
+         });
+      }
 
       adapter.clear();
       adapter.add("..");
@@ -302,28 +312,7 @@ public class MainActivity extends AppCompatActivity
     adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
     fill_list_with_filenames (current_dir.getAbsolutePath());
     listView.setAdapter(adapter);
-
-/*
-      String[] proj = { MediaStore.Audio.Media._ID,MediaStore.Audio.Media.DISPLAY_NAME };
-      Cursor audioCursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
-
-      ArrayList<String> audioList = new ArrayList<>();
-
-      if(audioCursor != null){
-         if(audioCursor.moveToFirst()){
-            do{
-               int audioIndex = audioCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
-                Log.i(TAG, audioCursor.getString(audioIndex));
-               audioList.add(audioCursor.getString(audioIndex));
-            }while(audioCursor.moveToNext());
-         }
-      }
-      audioCursor.close();
-*/
-//      adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
-
-     // adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1,  audioList);
-      //listView.setAdapter(adapter);
+    listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
 
       /*
@@ -378,7 +367,7 @@ File primaryExternalStorage = externalStorageVolumes[0];
       //getAllAudioFromDevice(this);
 
 
-      Button btPlayPause = (Button) findViewById(R.id.btPlayPause);
+      ImageButton btPlayPause = (ImageButton) findViewById(R.id.btPlayPause);
       btPlayPause.setOnClickListener(new View.OnClickListener() {
          public void onClick(View v) {
             track_play_pause();
@@ -393,54 +382,14 @@ File primaryExternalStorage = externalStorageVolumes[0];
          }
       });
 
-
-/*
-      binding.fab.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-
-            Log.i(TAG, "OOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-
-            String[] projection = new String[] {
-                    MediaStore.Audio.AudioColumns.ALBUM,
-                    MediaStore.Audio.AudioColumns.TITLE };
-
-            Uri contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-
-            Cursor cursor = getContentResolver().query (contentUri,
-                                                        projection, null, null, null);
-
-            Log.i(TAG, "cursor.getCount(): " + cursor.getCount());
-
-            // Get the index of the columns we need.
-            int albumIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM);
-            int titleIdx = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE);
-            // Create an array to store the result set.
-
-            Log.i(TAG, "cursor.getCount(): " + cursor.getCount());
-
-            String[] result = new String[cursor.getCount()];
-            while (cursor.moveToNext()) {
-               // Extract the song title.
-               String title = cursor.getString(titleIdx);
-               // Extract the album name.
-               String album = cursor.getString(albumIdx);
-               result[cursor.getPosition()] = title + " (" + album + ")";
-            }
-            // Close the Cursor.
-            cursor.close();
-
-            for(String t : result)
-            {
-               Log.v(TAG,t);
-            }
+      ImageButton btPlayPrev = (ImageButton) findViewById(R.id.btPlayPrev);
+      btPlayPrev.setOnClickListener(new View.OnClickListener() {
+         public void onClick(View v) {
+            track_prev();
          }
-
-
       });
+
    }
-*/
-}
 
    @Override
    public boolean onCreateOptionsMenu(Menu menu) {
