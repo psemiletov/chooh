@@ -91,9 +91,8 @@ public class MainActivity extends AppCompatActivity
 
    public void list_set_pos (int pos)
    {
-
-      listView.setSelection (pos);
       listView.scrollListBy (pos);
+      listView.setSelection (pos);
 
    }
 
@@ -110,12 +109,11 @@ public class MainActivity extends AppCompatActivity
 
    public void track_play (String fname)
    {
-      Log.d(TAG, "track_play: " + fname);
+//      list_set_pos (current_list_position);
+
+      Log.i(TAG, "track_play: " + fname);
 
       current_file = fname;
-
-
-      list_set_pos (current_list_position);
 
       if (player.isPlaying())
           player.stop();
@@ -123,22 +121,26 @@ public class MainActivity extends AppCompatActivity
       player.reset();
 
       try {
-         player.setDataSource(fname);
-         player.prepare();
-         player.start();
-      } catch (Exception e) {
+           player.setDataSource(fname);
+           player.prepare();
+           player.start();
+         }
+      catch (Exception e)
+            {
          e.printStackTrace();
-      }
+            }
    }
+
 
    public void track_prev()
    {
+      Log.i(TAG, "track_prev: ");
+
+
       if (current_list_position == 0)
          return;
 
-      current_list_position--;
-
-      File f = files[current_list_position];
+      File f = files[--current_list_position];
       track_play (f.getAbsolutePath());
 
       list_set_pos (current_list_position);
@@ -147,18 +149,15 @@ public class MainActivity extends AppCompatActivity
 
    public void track_next()
    {
+      Log.i(TAG, "track_next: ");
 
       if (current_list_position == files.length)
          return;
 
-      current_list_position++;
-
-      File f = files[current_list_position];
+      File f = files[++current_list_position];
       track_play (f.getAbsolutePath());
 
-
       list_set_pos (current_list_position);
-
    }
 
   public void track_play_pause ()
@@ -175,6 +174,8 @@ public class MainActivity extends AppCompatActivity
    public void fill_list_with_filenames (String path)
    {
       Log.i(TAG, "fill_list_with_filenames : " + path);
+
+      current_list_position = 0;
 
       current_dir = new File(path);
 
@@ -223,7 +224,6 @@ public class MainActivity extends AppCompatActivity
              }
 
          }
-
 
    }
 
@@ -345,26 +345,22 @@ File primaryExternalStorage = externalStorageVolumes[0];
          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.i(TAG, "itemClick: position = " + position + ", id = " + id);
 
+            current_list_position = position - 1;
+
             if (position == 0)
                {
                 //up dir
-                  directory_up();
+                 directory_up();
                }
             else
                 {
-                 File f = files[position - 1];
+                 File f = files[current_list_position];
                  if (f.isDirectory())
-                    {
-                     //goto dir
-                     Log.i(TAG, "GOTO DIR");
-                     Log.i(TAG, f.getAbsolutePath());
                      fill_list_with_filenames (f.getAbsolutePath());
-                    }
                  else
                      {
                       //play file
-                      track_play (f.getAbsolutePath());
-                      current_list_position = position - 1;
+                       track_play (f.getAbsolutePath());
                      }
 
                //Log.i(TAG, files[position - 1].getAbsolutePath());
