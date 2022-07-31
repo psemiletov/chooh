@@ -25,7 +25,10 @@
         android:layout_marginTop="28dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:choiceMode="singleChoice"
+        android:listSelector="@android:color/darker_gray"
+        />
 
     <ImageButton
         android:id="@+id/btPlayPrev"

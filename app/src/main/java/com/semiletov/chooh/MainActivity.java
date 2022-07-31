@@ -89,6 +89,13 @@ public class MainActivity extends AppCompatActivity
    private static final String TAG = "CHOOH";
 
 
+   public void list_set_pos (int pos)
+   {
+
+      listView.setSelection (pos);
+      listView.scrollListBy (pos);
+
+   }
 
    public void directory_up()
    {
@@ -107,8 +114,8 @@ public class MainActivity extends AppCompatActivity
 
       current_file = fname;
 
-      listView.setSelection (current_list_position);
-     // listView.setItemChecked(current_list_position, true);
+
+      list_set_pos (current_list_position);
 
       if (player.isPlaying())
           player.stop();
@@ -133,6 +140,9 @@ public class MainActivity extends AppCompatActivity
 
       File f = files[current_list_position];
       track_play (f.getAbsolutePath());
+
+      list_set_pos (current_list_position);
+
    }
 
    public void track_next()
@@ -145,6 +155,10 @@ public class MainActivity extends AppCompatActivity
 
       File f = files[current_list_position];
       track_play (f.getAbsolutePath());
+
+
+      list_set_pos (current_list_position);
+
    }
 
   public void track_play_pause ()
@@ -312,7 +326,9 @@ public class MainActivity extends AppCompatActivity
     adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, aList);
     fill_list_with_filenames (current_dir.getAbsolutePath());
     listView.setAdapter(adapter);
-    listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+
+   // listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
 
       /*
